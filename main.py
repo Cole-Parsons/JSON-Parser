@@ -7,6 +7,21 @@ import sys
 
 test_filepath = sys.argv[1]
 
+def expect(text, i):
+    next = i + 1
+
+    while next < len(text) and text[next].isspace():
+        next += 1
+
+    if next == len(text):
+        sys.exit("Invalid JSON, file ended improperly")
+    else:
+        next_char = text[next]
+
+    return next_char
+
+
+
 def lex(text):
     tokens = []
     i = 0
@@ -16,13 +31,18 @@ def lex(text):
         if c.isspace():
             i += 1
 
-        elif c == PUNCTUATIONS[3]:
-            if not text[i + 1].isalpha():
-                sys.exit("Invalid JSON, impropper comma location")
-
         elif c in PUNCTUATIONS:
-            tokens.append(c)
-            i += 1
+            if c == "," and expect(text, i) == '"':
+                tokens.append(c)
+                i += 1
+            elif c == "," and expect(text, i) != '"':
+                sys.exit("Invalid comma use, needs to be followed by a string")
+            else:
+                tokens.append(c)
+                i += 1
+
+                
+            
 
         elif c == '"':
             i += 1
@@ -39,8 +59,6 @@ def lex(text):
         else:
             sys.exit("Invalid JSON, failed")
     print("lex finished")
-
-#finish elif from cluade >>>
 
 def main():
     print("start")
